@@ -20,7 +20,6 @@ public class AuthService {
 
     public void registrar(RegisterRequest request) {
         Usuario usuario = Usuario.builder()
-                .nome(request.getNome())
                 .email(request.getEmail())
                 .senha(passwordEncoder.encode(request.getSenha()))
                 .build();

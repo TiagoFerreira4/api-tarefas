@@ -1,6 +1,7 @@
 package com.tiago.tarefas.security;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -8,7 +9,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String SECRET = "chave-secreta-super-segura";
+    private final String SECRET = "chave-secreta-super-segura"; // use uma chave forte em produção
     private final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 horas
 
     public String generateToken(String email) {
@@ -30,6 +31,19 @@ public class JwtUtil {
             return claims.getExpiration().after(new Date());
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public String validateTokenAndGetSubject(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(SECRET)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+        } catch (Exception e) {
+            return null;
         }
     }
 
