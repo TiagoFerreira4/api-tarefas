@@ -1,9 +1,9 @@
 package com.tiago.tarefas;
 
+import com.tiago.tarefas.security.LoginResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.tiago.tarefas.security.LoginResponse;
 
 @RestController
 @RequestMapping("/auth")
@@ -20,8 +20,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        String token = authService.login(request);
-        return ResponseEntity.ok(new LoginResponse(token));
+        LoginResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
-
 }

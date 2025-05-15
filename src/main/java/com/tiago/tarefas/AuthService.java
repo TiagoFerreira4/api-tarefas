@@ -1,7 +1,12 @@
 package com.tiago.tarefas;
 
 import com.tiago.tarefas.security.JwtUtil;
+import com.tiago.tarefas.security.LoginResponse;
+
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +28,29 @@ public class AuthService {
         usuarioRepository.save(usuario);
     }
 
-    public String login(LoginRequest request) {
-        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    public LoginResponse login(LoginRequest request) {
+        try {
+            System.out.println("Tentando login com: " + request.getEmail());
 
-        boolean senhaCorreta = passwordEncoder.matches(request.getSenha(), usuario.getSenha());
+            Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
-        if (!senhaCorreta) {
-            throw new RuntimeException("Senha inválida");
+            System.out.println("Usuário encontrado: " + usuario.getEmail());
+            System.out.println("Senha fornecida: " + request.getSenha());
+            System.out.println("Senha armazenada (criptografada): " + usuario.getSenha());
+
+            if (!passwordEncoder.matches(request.getSenha(), usuario.getSenha())) {
+                System.out.println("Senha inválida");
+                throw new BadCredentialsException("Credenciais inválidas");
+            }
+
+            String token = jwtUtil.generateToken(usuario.getEmail());
+            System.out.println("Token gerado com sucesso");
+            return new LoginResponse(token);
+        } catch (Exception e) {
+            e.printStackTrace(); // Exibe stack trace no console
+            throw new RuntimeException("Erro ao autenticar usuário: " + e.getMessage());
         }
+}
 
-        return jwtUtil.generateToken(usuario.getEmail());
-    }
 }
