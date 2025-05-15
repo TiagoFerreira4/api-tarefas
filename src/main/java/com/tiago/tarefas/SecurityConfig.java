@@ -13,8 +13,8 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/register").permitAll() // libera o endpoint de cadastro
-                .anyRequest().authenticated()
+                .requestMatchers("/auth/register", "/auth/login").permitAll()
+                .anyRequest().permitAll() // ← liberar tudo por enquanto
             );
 
         return http.build();
